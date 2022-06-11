@@ -1,7 +1,7 @@
 # Handles the code for the server
 from telnetlib import theNULL
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
-from databaseMethods import searchUsers, addUserToDatabase
+from databaseMethods import searchUsers, addUserToDatabase, createDatabase
 
 app = Flask(__name__)
 
@@ -58,7 +58,13 @@ def createChatroom () :
     if (request.method == "POST") :
         language = request.form.get("languageInput")
         name = request.form.get("nameInput")
+
+        # Find the value of the username cookie
+        username = request.cookies.get("username")
+
         # Add the chatroom to chatrooms.csv and add the user to users.csv
+        createDatabase(name, language, username)
+
     return render_template("createChatroom.html")
 
 app.run(debug=True, host='0.0.0.0')
