@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <title id="title">Create Chatroom</title>
+</head>
+
+<body>
+    <h1>Create a chatroom</h1>
+
+    <form action="{{ url_for("createChatroom")}}" method="post"> 
+        <p>Language:</p>
+        <input name = "languageInput">
+        <br>
+        <p>Chatroom Name:</p>
+        <input name = "nameInput">
+        <br>
+        <button class="button" type="submit">Create Chatroom</button>
+        <br>
+        </form>
+    <button onclick="window.open('/', '_self')">Go Back</button> 
+</body>

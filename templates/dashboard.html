@@ -1,3 +1,16 @@
-Dashboard
+<!DOCTYPE html>
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <title id="title">LinguaLearn Dashboard</title>
+</head>
 
-TODO: Make the loggedIn cookie = true
+<body>
+    <h1>Dashboard</h1>
+    <button onclick="window.open('/createChatroom', '_self')">Create a chatroom</button>
+</body>
+
+<script>
+    document.cookie = "loggedIn=True"
+</script>

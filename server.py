@@ -19,8 +19,10 @@ def index():
 
         # If username and password are found in the file
         if (searchUsers(username, 1) != "False") and (searchUsers(password, 2) != "False") :
-            # Take the user to the dashboard page
-            return render_template("dashboard.html")
+            # Take the user to the dashboard page and set the username cookie
+            dashboardTemplate = make_response(render_template("dashboard.html"))
+            dashboardTemplate.set_cookie('username', username)
+            return dashboardTemplate
         else :
             # If the username or password are not found
             return render_template("signInFail.html")
@@ -41,8 +43,22 @@ def signUp () :
         password = request.form.get("passwordInput")
 
         addUserToDatabase(username, password)
-        return render_template("dashboard.html")
+        # Take the user to the dashboard page and set the username cookie
+        dashboardTemplate = make_response(render_template("dashboard.html"))
+        dashboardTemplate.set_cookie('username', username)
+        return dashboardTemplate
 
     return render_template("signUp.html")
+
+# When the user clicks the button on the dahsboard to create a chatroom
+@app.route("/createChatroom", methods=["POST", "GET"])
+def createChatroom () :
+
+    # When the user clicks the create a chatroom button
+    if (request.method == "POST") :
+        language = request.form.get("languageInput")
+        name = request.form.get("nameInput")
+        # Add the chatroom to chatrooms.csv and add the user to users.csv
+    return render_template("createChatroom.html")
 
 app.run(debug=True, host='0.0.0.0')
