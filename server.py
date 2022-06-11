@@ -1,5 +1,7 @@
 # Handles the code for the server
+from telnetlib import theNULL
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
+from databaseMethods import searchUsers
 
 app = Flask(__name__)
 
@@ -14,12 +16,19 @@ def index():
         username = request.form.get("usernameInput")
         # TODO! Add encryption for the password!
         password = request.form.get("passwordInput")
+
+        # If username and password are found in the file
+        if (searchUsers(username, 1) != "False") and (searchUsers(password, 2) != "False") :
+            # Take the user to the dashboard page
+            return render_template("dashboard.html")
+        else :
+            # If the username or password are not found
+            return render_template("signInFail.html")
         
 
     if (loggedIn == "True") :
         # Load the dashboard.html page
-        # Below text is temporary
-        print("hello world")
+        return render_template("dashboard.html")
     else:
         return render_template("signIn.html")
 

@@ -8,4 +8,4 @@ A language learning chat app
 **Progress:** Lingualearn has just started development, so a small amount has been developed so far
 
 
-**Technologies:** Lingualearn uses *Python* with the *Flask* framework, and uses *MongoDB* for the database
+**Technologies:** Lingualearn uses *Python* with the *Flask* framework, and uses *CSV files* for the database
