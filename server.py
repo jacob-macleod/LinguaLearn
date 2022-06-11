@@ -1,7 +1,7 @@
 # Handles the code for the server
 from telnetlib import theNULL
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
-from databaseMethods import searchUsers
+from databaseMethods import searchUsers, addUserToDatabase
 
 app = Flask(__name__)
 
@@ -32,8 +32,17 @@ def index():
     else:
         return render_template("signIn.html")
 
-@app.route("/signup")
+@app.route("/signup", methods=["GET", "POST"])
 def signUp () :
+
+    # If the user presses the create an account button:
+    if request.method == "POST" :
+        username = request.form.get("usernameInput")
+        password = request.form.get("passwordInput")
+
+        addUserToDatabase(username, password)
+        return render_template("dashboard.html")
+
     return render_template("signUp.html")
 
 app.run(debug=True, host='0.0.0.0')
