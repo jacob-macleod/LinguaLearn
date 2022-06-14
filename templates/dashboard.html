@@ -9,8 +9,40 @@
 <body>
     <h1>Dashboard</h1>
     <button onclick="window.open('/createChatroom', '_self')">Create a chatroom</button>
+    
 </body>
 
 <script>
     document.cookie = "loggedIn=True"
+
+    // Convert the user array passed from python to a usable array
+    chatroomsToDisplay = {{ chatrooms|tojson }}  
+
+    for (chatroom=1;chatroom<chatroomsToDisplay.length;chatroom=chatroom+2) {
+        //alert (chatroomsToDisplay[chatroom])
+
+        container = document.createElement('div');
+        container.setAttribute("style", "border:1px solid black")
+
+        // Append the chatroom name to the div
+        chatroomName = document.createElement("button");
+        chatroomName.innerHTML = chatroomsToDisplay[chatroom]
+        chatroomName.setAttribute("onclick", "joinChatroom(this.innerHTML)")
+        chatroomName.setAttribute("name", chatroomsToDisplay[chatroom])
+        container.appendChild(chatroomName);
+
+        // Append the chatroom language to the div
+        chatroomLanguage = document.createElement("p")
+        chatroomLanguage.innerHTML = chatroomsToDisplay[chatroom-1]
+        container.appendChild(chatroomLanguage)
+
+        // Add container containing chatroom name and language to body
+        document.body.appendChild(container);
+    }
+
+
+    function joinChatroom (chatroomName) {
+        document.cookie = "chatroomName=" + chatroomName
+        window.open("/chatroom", "_self")
+    }
 </script>

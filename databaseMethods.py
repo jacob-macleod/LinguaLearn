@@ -34,14 +34,13 @@ def searchUsers(searchTerm, collumn) :
         csvfile.close()
         return "False"
 
-def createDatabase(name, language, username) :
+def createChatroom(name, language, username) :
     # Generate a unique chatroom ID
     chatroomID = uuid.uuid4()
 
     # Find the user's userID from their username - we can assume that the userID will be found since the username is passed from a cookie, only created if a user has successfully logged in and thus 
     # has their details uploaded to the users.csv file
     userID = searchUsers(username, 1)[1]
-    print (userID)
 
     #Add the user to the chatroomUsers.csv file
     with open("database/chatroomUsers.csv", "a") as csvfile:
@@ -55,3 +54,35 @@ def createDatabase(name, language, username) :
         csvwriter.writerow([chatroomID, language, name])
         csvfile.close()
 
+# Find the chatrooms which username has joined
+def findChatroomsJoined(username) :
+    chatroomsJoined = []
+    ChatroomDetails = []
+
+    #  Convert username to a userID
+    userID = searchUsers(username, 1)[1]
+
+    # Search chatroomUsers.csv to find all the chatrooms which userID has joined
+    with open("database/chatroomUsers.csv", "r") as csvfile:
+        # For every line in the csv file
+        csvreader = csv.reader(csvfile)
+        for line in csvreader:
+            if (line[0] == userID) :
+                # Append the database ID to databases joined
+                chatroomsJoined.append(line[1])
+        csvfile.close()
+
+    # Find the name and language of every chatroom in chatroomsJoined
+    with open("database/chatrooms.csv", "r") as csvfile:
+        # For every line in the file:
+        csvreader = csv.reader(csvfile)
+        for line in csvreader:
+            # Look at every chatroomID in chatroomsJoined
+            for chatroom in range (0, len(chatroomsJoined)):
+                # If the line in chatrooms.csv being viewed describes a database which the user has joined
+                if (line[0] == chatroomsJoined[chatroom]) :
+                    # Append the name and language of the chatroom to chatroom details
+                    ChatroomDetails.append(line[1])
+                    ChatroomDetails.append(line[2])
+    
+    return ChatroomDetails

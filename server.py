@@ -1,7 +1,7 @@
 # Handles the code for the server
 from telnetlib import theNULL
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
-from databaseMethods import searchUsers, addUserToDatabase, createDatabase
+from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined
 
 app = Flask(__name__)
 
@@ -20,7 +20,7 @@ def index():
         # If username and password are found in the file
         if (searchUsers(username, 1) != "False") and (searchUsers(password, 2) != "False") :
             # Take the user to the dashboard page and set the username cookie
-            dashboardTemplate = make_response(render_template("dashboard.html"))
+            dashboardTemplate = make_response(render_template("dashboard.html", chatrooms=findChatroomsJoined(username)))
             dashboardTemplate.set_cookie('username', username)
             return dashboardTemplate
         else :
@@ -30,7 +30,7 @@ def index():
 
     if (loggedIn == "True") :
         # Load the dashboard.html page
-        return render_template("dashboard.html")
+        return render_template("dashboard.html", chatrooms=findChatroomsJoined(request.cookies.get("username")))
     else:
         return render_template("signIn.html")
 
@@ -44,7 +44,7 @@ def signUp () :
 
         addUserToDatabase(username, password)
         # Take the user to the dashboard page and set the username cookie
-        dashboardTemplate = make_response(render_template("dashboard.html"))
+        dashboardTemplate = make_response(render_template("dashboard.html", chatrooms=findChatroomsJoined(username)))
         dashboardTemplate.set_cookie('username', username)
         return dashboardTemplate
 
@@ -52,7 +52,7 @@ def signUp () :
 
 # When the user clicks the button on the dahsboard to create a chatroom
 @app.route("/createChatroom", methods=["POST", "GET"])
-def createChatroom () :
+def createChatroomPage () :
 
     # When the user clicks the create a chatroom button
     if (request.method == "POST") :
@@ -63,8 +63,14 @@ def createChatroom () :
         username = request.cookies.get("username")
 
         # Add the chatroom to chatrooms.csv and add the user to users.csv
-        createDatabase(name, language, username)
+        createChatroom(name, language, username)
 
     return render_template("createChatroom.html")
+
+@app.route("/chatroom", methods=["GET", "POST"])
+def chatroom() :
+    chatroomName = request.cookies.get("chatroomName")
+    # Get all the messages for chatroomName
+    return render_template("chatroom.html", chatroomName=chatroomName)
 
 app.run(debug=True, host='0.0.0.0')
