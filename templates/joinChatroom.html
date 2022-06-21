@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="manifest.json">
+  <meta charset="utf-8">
+  <meta name="viewport"
+     content="width=device-width, initial-scale=1, user-scalable=yes">
+  <title id="title">LinguaLearn</title>
+</head>
+    <script>
+        // When the page loads
+        window.onload = function () {
+            // A list of all the chatrooms created
+            chatroomsList = {{ chatrooms|tojson }}
+
+            var options = [];
+            var option = document.createElement('option');
+
+            // For every chatroom
+            for (chatroom=0;chatroom<chatroomsList.length;chatroom++) {
+                // Add it as an option in the select box
+                option.text = option.value = chatroomsList[chatroom];
+                options.push(option.outerHTML);
+            }
+
+            document.getElementById("chatroomOptions").insertAdjacentHTML('beforeEnd', options.join('\n'))
+
+        }
+    </script>
+<body>
+<h1>Join a chatroom</h1>
+    <form action="{{ url_for("joinChatroom")}}" method="post"> 
+        <select name="chatroomOptions" id="chatroomOptions">
+
+            </select>
+
+        <button class="button" type="submit">Join</button> 
+</body>
+
+</html>

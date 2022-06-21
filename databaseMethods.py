@@ -34,13 +34,34 @@ def searchUsers(searchTerm, collumn) :
         csvfile.close()
         return "False"
 
+
+# Find a chatroom detail by the chatroomName
+def locateChatroomCollumn(searchTerm, collumn) :
+    matchFound = False
+
+    # For every line in users.csv
+    with open("database/chatrooms.csv", "r") as csvfile:
+        csvreader = csv.reader(csvfile)
+        for line in csvreader:
+            # If the collumn(th) position of the array line = searchTerm (If search term found)
+            if (line[collumn] == searchTerm) :
+                matchFound = True
+                csvfile.close()
+                # Return the line found
+                return line
+
+    # If no match found
+    if (matchFound == False) :
+        csvfile.close()
+        return "False"
+
 def createChatroom(name, language, username) :
     # Generate a unique chatroom ID
     chatroomID = uuid.uuid4()
 
     # Find the user's userID from their username - we can assume that the userID will be found since the username is passed from a cookie, only created if a user has successfully logged in and thus 
     # has their details uploaded to the users.csv file
-    userID = searchUsers(username, 1)[1]
+    userID = searchUsers(username, 1)[0]
 
     #Add the user to the chatroomUsers.csv file
     with open("database/chatroomUsers.csv", "a") as csvfile:
@@ -60,7 +81,7 @@ def findChatroomsJoined(username) :
     ChatroomDetails = []
 
     #  Convert username to a userID
-    userID = searchUsers(username, 1)[1]
+    userID = searchUsers(username, 1)[0]
 
     # Search chatroomUsers.csv to find all the chatrooms which userID has joined
     with open("database/chatroomUsers.csv", "r") as csvfile:
@@ -86,3 +107,29 @@ def findChatroomsJoined(username) :
                     ChatroomDetails.append(line[2])
     
     return ChatroomDetails
+
+def searchChatrooms() :
+    # Get an array of all the chatrooms which have been created
+    chatrooms = []
+
+    # Open the file in read mode
+    with open("database/chatrooms.csv", "r") as csvfile:
+        csvreader = csv.reader(csvfile)
+        # For each line in the file
+        for line in csvreader :
+            # Add the chatroom name
+            chatrooms.append(line[2])
+    return chatrooms
+
+def addUserToChatroom (username, chatroomName) :
+    #  Convert username to the userID
+    userID = searchUsers(username, 1)[0]
+
+    # Convert chatroom name to the chatroomID
+    chatroomID = locateChatroomCollumn(chatroomName, 2)[0]
+
+    # Add the userID and chatroomID to the chatroomUsers.csv file
+    with open("database/chatroomUsers.csv", "a") as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow([userID, chatroomID])
+        csvfile.close()
