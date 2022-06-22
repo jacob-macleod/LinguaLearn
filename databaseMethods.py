@@ -74,6 +74,12 @@ def createChatroom(name, language, username) :
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow([chatroomID, language, name])
         csvfile.close()
+    
+    # Add the chatroom to chatroomMessages.csv
+    with open("database/chatroomMessages.csv", "a") as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow([chatroomID])
+        csvfile.close()
 
 # Find the chatrooms which username has joined
 def findChatroomsJoined(username) :
@@ -148,17 +154,19 @@ def uploadMessage(message, chatroomName) :
         csvreader = csv.reader(csvfile)
         # For each line in the file
         for line in csvreader :
-            # If the current line stores all messages for chatroomID
-            if (line[0] == chatroomID) :
-                # Add message to the line and save it to messagesList
-                line.append(message)
-                for collumn in range(0, len(line)) :
-                    messagesList[i].append(line[collumn])
-                messagesList.append([])
-            else :
-                # Otherwise save the line to messages list
-                messagesList.append(line)
-            i = i + 1
+            # If line does not equal nothing
+            if (len(line) != 0) :
+                # If the current line stores all messages for chatroomID
+                if (line[0] == chatroomID) :
+                    # Add message to the line and save it to messagesList
+                    line.append(message)
+                    for collumn in range(0, len(line)) :
+                        messagesList[i].append(line[collumn])
+                    messagesList.append([])
+                else :
+                    # Otherwise save the line to messages list
+                    messagesList.append(line)
+                i = i + 1
     csvfile.close()
 
     # Replace chatroomMessages.csv with the data in messages
@@ -167,4 +175,3 @@ def uploadMessage(message, chatroomName) :
         for i in range(0, len(messagesList)):
             csvwriter.writerow(messagesList[i])
     csvfile.close()
-uploadMessage("helloMyMessage", "Hebrew101")

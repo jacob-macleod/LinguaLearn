@@ -1,7 +1,7 @@
 # Handles the code for the server
 from telnetlib import theNULL
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
-from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined, searchChatrooms, addUserToChatroom
+from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined, searchChatrooms, addUserToChatroom, uploadMessage
 
 app = Flask(__name__)
 
@@ -86,6 +86,10 @@ def joinChatroom() :
 @app.route("/chatroom", methods=["GET", "POST"])
 def chatroom() :
     chatroomName = request.cookies.get("chatroomName")
+
+    if (request.method == "POST") :
+        uploadMessage(request.form.get("message"), chatroomName)
+        print ("Uploaded message")
         
     return render_template("chatroom.html", chatroomName=chatroomName)
 
