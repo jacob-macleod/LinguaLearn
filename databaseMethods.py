@@ -133,3 +133,38 @@ def addUserToChatroom (username, chatroomName) :
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow([userID, chatroomID])
         csvfile.close()
+
+# Uploads a message to chatroommessages.csv
+def uploadMessage(message, chatroomName) :
+    # Convert chatroom name to the chatroomID
+    chatroomID = locateChatroomCollumn(chatroomName, 2)[0]
+
+    messagesList = [[]]
+    i = 0
+
+    # Messages are in the format: chatroomID, message1, message2, message3...
+    # Save the file to memerory
+    with open("database/chatroomMessages.csv", "r") as csvfile:
+        csvreader = csv.reader(csvfile)
+        # For each line in the file
+        for line in csvreader :
+            # If the current line stores all messages for chatroomID
+            if (line[0] == chatroomID) :
+                # Add message to the line and save it to messagesList
+                line.append(message)
+                for collumn in range(0, len(line)) :
+                    messagesList[i].append(line[collumn])
+                messagesList.append([])
+            else :
+                # Otherwise save the line to messages list
+                messagesList.append(line)
+            i = i + 1
+    csvfile.close()
+
+    # Replace chatroomMessages.csv with the data in messages
+    with open("database/chatroomMessages.csv", "w") as csvfile:
+        csvwriter = csv.writer(csvfile)
+        for i in range(0, len(messagesList)):
+            csvwriter.writerow(messagesList[i])
+    csvfile.close()
+uploadMessage("helloMyMessage", "Hebrew101")

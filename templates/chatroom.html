@@ -1,3 +1,24 @@
-{{ chatroomName }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="manifest.json">
+  <meta charset="utf-8">
+  <meta name="viewport"
+     content="width=device-width, initial-scale=1, user-scalable=yes">
+  <title id="title">{{ chatroomName }}</title>
+</head>
+<body>
+  <h1>TODO: Add the ability to send messages, recieve mesages, and show the last 20 sent messages or so</h1>
 
-TODO: Add the ability to send messages, recieve mesages, and show the last 20 sent messages or so
+  <div>
+      <p>Messages go here</p>
+      <br>
+  </div>
+
+  <form action="{{ url_for("chatroom")}}" method="post"> 
+    <input name = "message">
+    <button class="button" type="submit">Submit Message</button> 
+  </form>
+</body>
+
+</html>
