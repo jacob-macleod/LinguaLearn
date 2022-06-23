@@ -175,3 +175,23 @@ def uploadMessage(message, chatroomName) :
         for i in range(0, len(messagesList)):
             csvwriter.writerow(messagesList[i])
     csvfile.close()
+
+def readChatroomMessages(chatroomName) :
+    # Convert chatroom name to the chatroomID
+    chatroomID = locateChatroomCollumn(chatroomName, 2)[0]
+
+    messagesList = []
+
+    # For every line in chatroomMessages.csv
+    with open("database/chatroomMessages.csv", "r") as csvfile :
+        csvreader = csv.reader(csvfile)
+        for line in csvreader :
+            # If line is not blank 
+            if (len(line) != 0) :
+                # If the current line stores the data for chatroomID
+                if (line[0] == chatroomID) :
+                    # Store all the messages in line to messagesList (store every item in line after the first in messageslist)
+                    for i in range(1, len(line)) :
+                        messagesList.append(line[i])
+
+    return messagesList

@@ -9,10 +9,7 @@
 </head>
 <body>
   <h1>TODO: Add the ability to send messages, recieve mesages, and show the last 20 sent messages or so</h1>
-
-  <div>
-      <p>Messages go here</p>
-      <br>
+  <div id = "messageContainer">
   </div>
 
   <form action="{{ url_for("chatroom")}}" method="post"> 
@@ -20,5 +17,17 @@
     <button class="button" type="submit">Submit Message</button> 
   </form>
 </body>
+<script>
+  messages = {{ messages|tojson }} 
+
+  // For every message in messages
+  for (i=0;i<messages.length;i++) {
+    // Add the message to the div element
+    var paragraph = document.createElement("p")
+    paragraph.innerHTML = messages[i]
+
+    document.getElementById("messageContainer").append(paragraph)
+  } 
+</script>
 
 </html>
