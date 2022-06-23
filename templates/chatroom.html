@@ -8,26 +8,57 @@
   <title id="title">{{ chatroomName }}</title>
 </head>
 <body>
-  <h1>TODO: Add the ability to send messages, recieve mesages, and show the last 20 sent messages or so</h1>
+  <h1>{{ chatroomName }}</h1>
   <div id = "messageContainer">
   </div>
 
   <form action="{{ url_for("chatroom")}}" method="post"> 
-    <input name = "message">
+    <input id="message" name = "message">
     <button class="button" type="submit">Submit Message</button> 
   </form>
 </body>
 <script>
-  messages = {{ messages|tojson }} 
 
-  // For every message in messages
-  for (i=0;i<messages.length;i++) {
-    // Add the message to the div element
-    var paragraph = document.createElement("p")
-    paragraph.innerHTML = messages[i]
+  function readCookie(cookieName) {
+  let name = cookieName + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
 
-    document.getElementById("messageContainer").append(paragraph)
-  } 
+  window.onload = function() {
+    messages = {{ messages|tojson }} 
+    
+    document.getElementById("message").value = readCookie("message")
+
+    // For every message in messages
+    for (i=0;i<messages.length;i++) {
+      // Add the message to the div element
+      var paragraph = document.createElement("p")
+      paragraph.innerHTML = messages[i]
+
+      document.getElementById("messageContainer").append(paragraph)
+    }
+      // When a key is pressed
+      document.onkeydown= function(e){
+          document.cookie = "message="+document.getElementById("message").value
+      }
+
+      // Every 5 seconds
+      setTimeout(function(){
+        // Reload the page (to show any new messages)
+        window.open("/chatroom", "_self")
+      }, 20000)
+    }
 </script>
 
 </html>
