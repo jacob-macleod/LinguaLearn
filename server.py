@@ -92,8 +92,13 @@ def chatroom() :
     if (request.method == "POST") :
         uploadMessage(request.form.get("message"), chatroomName, request.cookies.get("username"))
         # Reload the page so the sent message can be seen
-        return render_template("chatroom.html", chatroomName=chatroomName, messages=readChatroomMessages(chatroomName))
-        
-    return render_template("chatroom.html", chatroomName=chatroomName, messages=readChatroomMessages(chatroomName))
+        xp = searchUsers(request.cookies.get("username"), 1)[3]
+        # Also clear the message cookie
+        reloadPage = make_response(render_template("chatroom.html", chatroomName=chatroomName, messages=readChatroomMessages(chatroomName), xp=xp))
+        reloadPage.set_cookie("message", "")
+        return reloadPage
+    
+    xp = searchUsers(request.cookies.get("username"), 1)[3]
+    return render_template("chatroom.html", chatroomName=chatroomName, messages=readChatroomMessages(chatroomName), xp=xp)
 
 app.run(debug=True, host='0.0.0.0')
