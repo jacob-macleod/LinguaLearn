@@ -2,7 +2,6 @@
 from telnetlib import theNULL
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
 from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined, searchChatrooms, addUserToChatroom, uploadMessage, readChatroomMessages
-
 app = Flask(__name__)
 
 
@@ -20,7 +19,8 @@ def index():
         # If username and password are found in the file
         if (searchUsers(username, 1) != "False") and (searchUsers(password, 2) != "False") :
             # Take the user to the dashboard page and set the username cookie
-            dashboardTemplate = make_response(render_template("dashboard.html", chatrooms=findChatroomsJoined(username)))
+            xp = searchUsers(username, 1)[3]
+            dashboardTemplate = make_response(render_template("dashboard.html", chatrooms=findChatroomsJoined(username), xp=xp))
             dashboardTemplate.set_cookie('username', username)
             return dashboardTemplate
         else :
@@ -30,7 +30,9 @@ def index():
 
     if (loggedIn == "True") :
         # Load the dashboard.html page
-        return render_template("dashboard.html", chatrooms=findChatroomsJoined(request.cookies.get("username")))
+        username = request.cookies.get("username")
+        xp = searchUsers(username, 1)[3]
+        return render_template("dashboard.html", chatrooms=findChatroomsJoined(username), xp=xp)
     else:
         return render_template("signIn.html")
 
@@ -88,7 +90,7 @@ def chatroom() :
     chatroomName = request.cookies.get("chatroomName")
 
     if (request.method == "POST") :
-        uploadMessage(request.form.get("message"), chatroomName)
+        uploadMessage(request.form.get("message"), chatroomName, request.cookies.get("username"))
         # Reload the page so the sent message can be seen
         return render_template("chatroom.html", chatroomName=chatroomName, messages=readChatroomMessages(chatroomName))
         

@@ -2,6 +2,8 @@
 import csv
 from re import search
 import uuid
+from statisticMethods import calculateXP
+
 
 # Add a user to the database
 def addUserToDatabase(username, password) :
@@ -23,11 +25,12 @@ def searchUsers(searchTerm, collumn) :
         csvreader = csv.reader(csvfile)
         for line in csvreader:
             # If the collumn(th) position of the array line = searchTerm (If search term found)
-            if (line[collumn] == searchTerm) :
-                matchFound = True
-                csvfile.close()
-                # Return the line found
-                return line
+            if (len(line) != 0) :
+                if (line[collumn] == searchTerm) :
+                    matchFound = True
+                    csvfile.close()
+                    # Return the line found
+                    return line
 
     # If no match found
     if (matchFound == False) :
@@ -140,13 +143,45 @@ def addUserToChatroom (username, chatroomName) :
         csvwriter.writerow([userID, chatroomID])
         csvfile.close()
 
+# Add an amount of xp to a user's profile
+# note in users.csv, element 3 = total xp and element 4 is streak length
+def addXPToUser(XP, user) :
+    #  Convert username to a userID
+    userID = searchUsers(user, 1)[0]
+    userDetails = [[]]
+
+    # For every line in users.csv
+    with open("database/users.csv", "r") as csvfile:
+        csvreader = csv.reader(csvfile)
+        for line in csvreader:
+            #If the line is not blank
+            if (len(line) != 0) :
+                # If the current line contains the information for user
+                if (line[0] == userID) :
+                    # Add XP to teh current XP value
+                    line[3] = str(int(line[3]) + XP)
+                    userDetails.append(line)
+                else :
+                    userDetails.append(line)
+    csvfile.close()
+
+    # Replace users.csv with the new edited data in userDetails
+    with open("database/users.csv", "w") as csvfile:
+        csvwriter = csv.writer(csvfile)
+        for i in range(0, len(userDetails)):
+            csvwriter.writerow(userDetails[i])
+    csvfile.close()
+
 # Uploads a message to chatroommessages.csv
-def uploadMessage(message, chatroomName) :
+def uploadMessage(message, chatroomName, user) :
     # Convert chatroom name to the chatroomID
     chatroomID = locateChatroomCollumn(chatroomName, 2)[0]
 
     messagesList = [[]]
     i = 0
+
+    xpGained = calculateXP(message)
+    addXPToUser(xpGained, user)
 
     # Messages are in the format: chatroomID, message1, message2, message3...
     # Save the file to memerory
