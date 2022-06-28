@@ -1,7 +1,10 @@
 # Handles the code for the server
+from cgitb import reset
+from importlib import reload
 from telnetlib import theNULL
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
-from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined, searchChatrooms, addUserToChatroom, uploadMessage, readChatroomMessages
+from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined, searchChatrooms, addUserToChatroom, uploadMessage, readChatroomMessages, increaseStreak, resetStreak
+import datetime
 app = Flask(__name__)
 
 
@@ -89,16 +92,67 @@ def joinChatroom() :
 def chatroom() :
     chatroomName = request.cookies.get("chatroomName")
 
+    # If a post is submitted
     if (request.method == "POST") :
+        xp = searchUsers(request.cookies.get("username"), 1)[3]
+        reloadPage = make_response(render_template("chatroom.html", chatroomName=chatroomName, messages=readChatroomMessages(chatroomName), xp=xp))
+
+        # Find the date of the last streak
+        year = request.cookies.get("year")
+        month = request.cookies.get("month")
+        day = request.cookies.get("day")
+        
+        # If the cookies have been set
+        try :
+            lastStreak = datetime.datetime(int(year), int(month), int(day))
+        except :
+            # If the cookies have not been set
+            lastStreak = datetime.datetime.now()
+
+            # Update the streak by one day
+            # Update the cookies to reflect the data for today
+            reloadPage.set_cookie("year", datetime.datetime.now().strftime("%Y"))
+            reloadPage.set_cookie("month", datetime.datetime.now().strftime("%m"))
+            reloadPage.set_cookie("day", datetime.datetime.now().strftime("%d"))
+            
+            # Actually increase the streak
+            increaseStreak(request.cookies.get("username"))
+
+
+        # Get the current date
+        date = datetime.datetime.now()
+        # Find how long ago the last streak was
+        delta = date - lastStreak
+
+        # If the streak was last updated 1 day ago
+        if (delta.days == 1) :
+            # Update the cookies to reflect the data for today
+            reloadPage.set_cookie("year", datetime.datetime.now().strftime("%Y"))
+            reloadPage.set_cookie("month", datetime.datetime.now().strftime("%m"))
+            reloadPage.set_cookie("day", datetime.datetime.now().strftime("%d"))
+            
+            # Increase the streak
+            increaseStreak(request.cookies.get("username"))
+        elif (delta.days > 1) :
+            # If the streak was updated more than one day ago
+            # Update the cookies to reflect the data for today
+            reloadPage.set_cookie("year", datetime.datetime.now().strftime("%Y"))
+            reloadPage.set_cookie("month", datetime.datetime.now().strftime("%m"))
+            reloadPage.set_cookie("day", datetime.datetime.now().strftime("%d"))
+            resetStreak(request.cookies.get("username"))
+            
+            increaseStreak(request.cookies.get("username"))
+        else:
+            # If the streak was done today do nothing
+            pass
+
         uploadMessage(request.form.get("message"), chatroomName, request.cookies.get("username"))
         # Reload the page so the sent message can be seen
-        xp = searchUsers(request.cookies.get("username"), 1)[3]
         # Also clear the message cookie
-        reloadPage = make_response(render_template("chatroom.html", chatroomName=chatroomName, messages=readChatroomMessages(chatroomName), xp=xp))
         reloadPage.set_cookie("message", "")
         return reloadPage
     
     xp = searchUsers(request.cookies.get("username"), 1)[3]
     return render_template("chatroom.html", chatroomName=chatroomName, messages=readChatroomMessages(chatroomName), xp=xp)
-
+    
 app.run(debug=True, host='0.0.0.0')

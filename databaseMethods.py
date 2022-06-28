@@ -3,6 +3,7 @@ import csv
 from re import search
 import uuid
 from statisticMethods import calculateXP
+import datetime
 
 
 # Add a user to the database
@@ -144,7 +145,7 @@ def addUserToChatroom (username, chatroomName) :
         csvfile.close()
 
 # Add an amount of xp to a user's profile
-# note in users.csv, element 3 = total xp and element 4 is streak length
+# note in users.csv, element 3 = total xp and element 4 is streak length, and element 5 is the xp for the given week
 def addXPToUser(XP, user) :
     #  Convert username to a userID
     userID = searchUsers(user, 1)[0]
@@ -230,3 +231,77 @@ def readChatroomMessages(chatroomName) :
                         messagesList.append(line[i])
 
     return messagesList
+
+
+# Run when a messages is sent - increment the streak data for the user
+def increaseStreak(user) :
+
+    #  Convert username to a userID
+    userID = searchUsers(user, 1)[0]
+
+    userDetails = [[]]
+
+    # Increase the streak
+    # Open the users.csv file where element 3 = total xp and element 4 is streak length, and element 5 is the xp for the given week
+    with open("database/users.csv", "r") as csvfile:
+        csvreader = csv.reader(csvfile)
+        # For every line in csvreader
+        for line in csvreader:
+            #If the line is not blank
+            if (len(line) != 0) :
+                # If the current line contains the information for user
+                if (line[0] == userID) :
+                    # Add XP to teh current XP value
+                    line[4] = str(int(line[4]) + 1)
+                    userDetails.append(line)
+                else :
+                    userDetails.append(line)
+    csvfile.close()
+
+    # Replace the text in users.csv with the data in userDetails
+    with open("database/users.csv", "w") as csvfile:
+        csvwriter = csv.writer(csvfile)
+        for i in range(0, len(userDetails)):
+            # If the line is not blank
+            print ("userdetails" + str(userDetails[i]))
+            if (userDetails[i] != []) :
+                # Add the line to users.csv
+                csvwriter.writerow(userDetails[i])
+    csvfile.close()
+
+
+# Reset the streak back to zero
+def resetStreak(user) :
+
+    #  Convert username to a userID
+    userID = searchUsers(user, 1)[0]
+
+    userDetails = [[]]
+
+    # Increase the streak
+    # Open the users.csv file where element 3 = total xp and element 4 is streak length, and element 5 is the xp for the given week
+    with open("database/users.csv", "r") as csvfile:
+        csvreader = csv.reader(csvfile)
+        # For every line in csvreader
+        for line in csvreader:
+            #If the line is not blank
+            if (len(line) != 0) :
+                # If the current line contains the information for user
+                if (line[0] == userID) :
+                    # Add XP to teh current XP value
+                    line[4] = "0"
+                    userDetails.append(line)
+                else :
+                    userDetails.append(line)
+    csvfile.close()
+
+    # Replace the text in users.csv with the data in userDetails
+    with open("database/users.csv", "w") as csvfile:
+        csvwriter = csv.writer(csvfile)
+        for i in range(0, len(userDetails)):
+            # If the line is not blank
+            print ("userdetails" + str(userDetails[i]))
+            if (userDetails[i] != []) :
+                # Add the line to users.csv
+                csvwriter.writerow(userDetails[i])
+    csvfile.close()
