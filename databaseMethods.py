@@ -305,3 +305,23 @@ def resetStreak(user) :
                 # Add the line to users.csv
                 csvwriter.writerow(userDetails[i])
     csvfile.close()
+
+# Returns the user's streak
+def findStreak(user) :
+    #  Convert username to a userID
+    userID = searchUsers(user, 1)[0]
+    streak = 0
+
+    # Open the users.csv file
+    with open("database/users.csv", "r") as csvfile:
+        csvreader = csv.reader(csvfile)
+        # For every line in users.csv
+        for line in csvreader:
+            # If the line is not blank
+            if (len(line) != 0) :
+                # If the line contains the details for user
+                if (line[0] == userID) :
+                    # Save the user's streak
+                    streak = line[4]
+
+    return streak

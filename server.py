@@ -3,7 +3,7 @@ from cgitb import reset
 from importlib import reload
 from telnetlib import theNULL
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
-from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined, searchChatrooms, addUserToChatroom, uploadMessage, readChatroomMessages, increaseStreak, resetStreak
+from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined, searchChatrooms, addUserToChatroom, uploadMessage, readChatroomMessages, increaseStreak, resetStreak, findStreak
 import datetime
 app = Flask(__name__)
 
@@ -23,7 +23,7 @@ def index():
         if (searchUsers(username, 1) != "False") and (searchUsers(password, 2) != "False") :
             # Take the user to the dashboard page and set the username cookie
             xp = searchUsers(username, 1)[3]
-            dashboardTemplate = make_response(render_template("dashboard.html", chatrooms=findChatroomsJoined(username), xp=xp))
+            dashboardTemplate = make_response(render_template("dashboard.html", chatrooms=findChatroomsJoined(username), xp=xp, streak=findStreak(username)))
             dashboardTemplate.set_cookie('username', username)
             return dashboardTemplate
         else :
@@ -35,7 +35,7 @@ def index():
         # Load the dashboard.html page
         username = request.cookies.get("username")
         xp = searchUsers(username, 1)[3]
-        return render_template("dashboard.html", chatrooms=findChatroomsJoined(username), xp=xp)
+        return render_template("dashboard.html", chatrooms=findChatroomsJoined(username), xp=xp, streak=findStreak(username))
     else:
         return render_template("signIn.html")
 
