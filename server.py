@@ -3,7 +3,7 @@ from cgitb import reset
 from importlib import reload
 from telnetlib import theNULL
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
-from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined, searchChatrooms, addUserToChatroom, uploadMessage, readChatroomMessages, increaseStreak, resetStreak, findStreak
+from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined, searchChatrooms, addUserToChatroom, uploadMessage, readChatroomMessages, increaseStreak, resetStreak, findStreak, checkIfWeeklyXPNeedsReset
 import datetime
 app = Flask(__name__)
 
@@ -21,9 +21,42 @@ def index():
 
         # If username and password are found in the file
         if (searchUsers(username, 1) != "False") and (searchUsers(password, 2) != "False") :
-            # Take the user to the dashboard page and set the username cookie
+            # Setup the redirect page
             xp = searchUsers(username, 1)[3]
             dashboardTemplate = make_response(render_template("dashboard.html", chatrooms=findChatroomsJoined(username), xp=xp, streak=findStreak(username)))
+            
+            # Check if the cookie storing the last time the weekly xp count was updated needs to be reset. If so, reset it and set the weekly xp count to 0
+            # Find the date of the last reset
+            year = request.cookies.get("lastResetYear")
+            month = request.cookies.get("lastResetMonth")
+            day = request.cookies.get("lastResetDay")
+            
+            # If the cookies have already been set
+            try :
+                lastReset = datetime.datetime(int(year), int(month), int(day))
+            except :
+                # If the cookies have not been set yet
+                lastReset = datetime.datetime.now()
+
+                # Update the cookies to show the data from today
+                dashboardTemplate.set_cookie("lastResetYear", datetime.datetime.now().strftime("%Y"))
+                dashboardTemplate.set_cookie("lastResetMonth", datetime.datetime.now().strftime("%m"))
+                dashboardTemplate.set_cookie("lastResetDay", datetime.datetime.now().strftime("%d"))
+
+                # Store the data of the last reset
+                year = datetime.datetime.now().strftime("%Y")
+                month = datetime.datetime.now().strftime("%m")
+                day = datetime.datetime.now().strftime("%d")
+            
+            reset = checkIfWeeklyXPNeedsReset(year, month, day, username)
+            # If the weekl xp has been reset
+            if (reset == True) :
+                # Update the relevant cookies accordingly
+                dashboardTemplate.set_cookie("lastResetYear", datetime.datetime.now().strftime("%Y"))
+                dashboardTemplate.set_cookie("lastResetMonth", datetime.datetime.now().strftime("%m"))
+                dashboardTemplate.set_cookie("lastResetDay", datetime.datetime.now().strftime("%d"))
+
+            # Take the user to the dashboard page and set the username cookie
             dashboardTemplate.set_cookie('username', username)
             return dashboardTemplate
         else :
@@ -34,8 +67,45 @@ def index():
     if (loggedIn == "True") :
         # Load the dashboard.html page
         username = request.cookies.get("username")
+            
+        # Setup the redirect page
         xp = searchUsers(username, 1)[3]
-        return render_template("dashboard.html", chatrooms=findChatroomsJoined(username), xp=xp, streak=findStreak(username))
+        dashboardTemplate = make_response(render_template("dashboard.html", chatrooms=findChatroomsJoined(username), xp=xp, streak=findStreak(username)))
+            
+        # Check if the cookie storing the last time the weekly xp count was updated needs to be reset. If so, reset it and set the weekly xp count to 0
+        # Find the date of the last reset
+        year = request.cookies.get("lastResetYear")
+        month = request.cookies.get("lastResetMonth")
+        day = request.cookies.get("lastResetDay")
+            
+        # If the cookies have already been set
+        try :
+            lastReset = datetime.datetime(int(year), int(month), int(day))
+        except :
+            # If the cookies have not been set yet
+            lastReset = datetime.datetime.now()
+
+            # Update the cookies to show the data from today
+            dashboardTemplate.set_cookie("lastResetYear", datetime.datetime.now().strftime("%Y"))
+            dashboardTemplate.set_cookie("lastResetMonth", datetime.datetime.now().strftime("%m"))
+            dashboardTemplate.set_cookie("lastResetDay", datetime.datetime.now().strftime("%d"))
+
+            # Store the data of the last reset
+            year = datetime.datetime.now().strftime("%Y")
+            month = datetime.datetime.now().strftime("%m")
+            day = datetime.datetime.now().strftime("%d")
+                
+        reset = checkIfWeeklyXPNeedsReset(year, month, day, username)
+        # If the weekl xp has been reset
+        if (reset == True) :
+            # Update the relevant cookies accordingly
+            dashboardTemplate.set_cookie("lastResetYear", datetime.datetime.now().strftime("%Y"))
+            dashboardTemplate.set_cookie("lastResetMonth", datetime.datetime.now().strftime("%m"))
+            dashboardTemplate.set_cookie("lastResetDay", datetime.datetime.now().strftime("%d"))
+
+        # Take the user to the dashboard page and set the username cookie
+        dashboardTemplate.set_cookie('username', username)
+        return dashboardTemplate
     else:
         return render_template("signIn.html")
 

@@ -323,5 +323,53 @@ def findStreak(user) :
                 if (line[0] == userID) :
                     # Save the user's streak
                     streak = line[4]
-
+    csvfile.close()
     return streak
+
+# Check if the weekly xp count needs to be reset. If so, reset if
+def checkIfWeeklyXPNeedsReset(lastResetYear, lastResetMonth, lastResetDay, user) :
+    #  Convert username to a userID
+    userID = searchUsers(user, 1)[0]
+
+    reset = False
+
+    userDetails = [[]]
+
+    # Convert the last reset year, month and day to datetime format
+    lastReset = datetime.datetime(int(lastResetYear), int(lastResetMonth), int(lastResetDay))
+    # Get the current date
+    date = datetime.datetime.now()
+    # Find how long ago the last streak was
+    delta = date - lastReset
+
+    # If the last reset was more that a week ago
+    if (delta.days > 6) :
+    # Open the users.csv file where element 3 = total xp and element 4 is streak length, and element 5 is the xp for the given week
+        with open("database/users.csv", "r") as csvfile:
+            csvreader = csv.reader(csvfile)
+            # For every line in csvreader
+            for line in csvreader:
+                #If the line is not blank
+                if (len(line) != 0) :
+                    # If the current line contains the information for user
+                    if (line[0] == userID) :
+                        # Reset the streak
+                        line[5] = "0"
+                        userDetails.append(line)
+                        reset = True
+                    else :
+                        userDetails.append(line)
+        csvfile.close()
+
+        # Replace the text in users.csv with the data in userDetails
+        with open("database/users.csv", "w") as csvfile:
+            csvwriter = csv.writer(csvfile)
+            for i in range(0, len(userDetails)):
+                # If the line is not blank
+                print ("userdetails" + str(userDetails[i]))
+                if (userDetails[i] != []) :
+                    # Add the line to users.csv
+                    csvwriter.writerow(userDetails[i])
+        csvfile.close()
+
+    return reset
