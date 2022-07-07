@@ -3,7 +3,7 @@ from cgitb import reset
 from importlib import reload
 from telnetlib import theNULL
 from flask import Flask, render_template, request, redirect, url_for, flash, make_response
-from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined, searchChatrooms, addUserToChatroom, uploadMessage, readChatroomMessages, increaseStreak, resetStreak, findStreak, checkIfWeeklyXPNeedsReset
+from databaseMethods import searchUsers, addUserToDatabase, createChatroom, findChatroomsJoined, searchChatrooms, addUserToChatroom, uploadMessage, readChatroomMessages, increaseStreak, resetStreak, findStreak, checkIfWeeklyXPNeedsReset, sortUsersByXP
 import datetime
 app = Flask(__name__)
 
@@ -225,4 +225,8 @@ def chatroom() :
     xp = searchUsers(request.cookies.get("username"), 1)[3]
     return render_template("chatroom.html", chatroomName=chatroomName, messages=readChatroomMessages(chatroomName), xp=xp)
     
+@app.route("/leaderboard", methods=["GET", "POST"])
+def leaderboard () :
+    return render_template("leaderboard.html", users=sortUsersByXP())
+
 app.run(debug=True, host='0.0.0.0')

@@ -2,7 +2,7 @@
 import csv
 from re import search
 import uuid
-from statisticMethods import calculateXP
+from statisticMethods import calculateXP, sortUsersOnLeaderBoard
 import datetime
 
 
@@ -375,3 +375,25 @@ def checkIfWeeklyXPNeedsReset(lastResetYear, lastResetMonth, lastResetDay, user)
         csvfile.close()
 
     return reset
+
+# Return a list of users sorted by their weekly xp in the format: user, xp, user, xp...
+def sortUsersByXP() :
+    users = []
+    usersXP = []
+
+    # Fill users and usersXP with the relevant data
+    # Open the users.csv file
+    with open("database/users.csv", "r") as csvfile:
+        csvreader = csv.reader(csvfile)
+        
+        # For every line in the file
+        for line in csvreader:
+            # If the line is not blank
+            if (len(line) != 0) :
+                # Store the username in users
+                users.append(line[1])
+                # Store the user's xp in usersXP
+                usersXP.append(line[5])
+
+    # Using usersXP, sort users and usersXP in descending order and return th given array - in format user, xp, user, xp...
+    return sortUsersOnLeaderBoard(users, usersXP)

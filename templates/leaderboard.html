@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="manifest.json">
+  <meta charset="utf-8">
+  <meta name="viewport"
+     content="width=device-width, initial-scale=1, user-scalable=yes">
+  <title id="title">LinguaLearn</title>
+</head>
+<body>
+  <h1>Leaderboard</h1>
+   
+  <div id="userContainer">
+      
+  </div>
+</body>
+<script>
+      // Convert the users array passed from python to a usable array
+      // Array is in format user, xp, user, xp...
+      users = {{ users|tojson }} 
+
+      // For every element in users
+      for (i=0;i<users.length;i=i+2) {
+        // Create elements to contain the user's name and xp
+        username = document.createElement("h3")
+        xp = document.createElement("p")
+
+        // Store text in name and xp
+        username.innerHTML = users[i]
+        xp.innerHTML = users[i+1]
+
+        // Append to userContainer
+        document.getElementById("userContainer").prepend (xp)
+        document.getElementById("userContainer").prepend (username)
+      } 
+</script>
+</html>
