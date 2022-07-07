@@ -159,8 +159,10 @@ def addXPToUser(XP, user) :
             if (len(line) != 0) :
                 # If the current line contains the information for user
                 if (line[0] == userID) :
-                    # Add XP to teh current XP value
+                    # Add XP to the current XP value
                     line[3] = str(int(line[3]) + XP)
+                    # Also add xp to the weekly xp value
+                    line[5] = str(int(line[5]) + XP)
                     userDetails.append(line)
                 else :
                     userDetails.append(line)
